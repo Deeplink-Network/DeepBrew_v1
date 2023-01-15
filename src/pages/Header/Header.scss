@@ -1,0 +1,100 @@
+// header
+.header {
+  background-color: white;
+
+  &-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+
+  &-logo {
+    img {
+      width: auto;
+      height: 1.6rem;
+    }
+
+    button {
+      padding: 4px 30px;
+      outline: none;
+      color: #3c53f4;
+      transition: all 0.2s ease, visibility 0s;
+      background: rgba(255, 255, 255, 0);
+      border-radius: 30px;
+      border: 0.75px solid #3c53f4;
+      font-size: 14px;
+      margin-left: 5.5rem;
+      margin-right: 1rem;
+
+      &:hover {
+        box-shadow: 0 0 6px 1px rgb(95 91 205);
+      }
+    }
+  }
+
+  &-item {
+    font-size: 14px;
+    padding: 1rem 0.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: color 0.5s;
+    color: rgb(85, 85, 85);
+
+    &:hover {
+      color: rgb(250, 194, 203);
+    }
+
+    &.inactive {
+      cursor: default;
+      &:hover {
+        color: rgb(85, 85, 85);
+      }
+    }
+
+    &__wrapper {
+      position: relative;
+    }
+
+    &__sub {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+      background: rgba(255, 255, 255, 0.5);
+      padding: 0.5rem;
+
+      > span {
+        font-weight: 500;
+        transition: color 0.5s;
+        cursor: pointer;
+        color: rgb(85, 85, 85);
+        margin-bottom: 0.2rem;
+
+        &:hover {
+          color: rgb(250, 194, 203);
+        }
+      }
+    }
+
+    &__active {
+      font-weight: 300;
+      padding: 0.4rem 2rem;
+      border-radius: 20px;
+      background: #2a2a2a;
+      font-size: 12px;
+
+      transition: all 0.2s ease, visibility 0s;
+      background: rgba(255, 255, 255, 0);
+      border-radius: 30px;
+      border: 0.75px solid #2a2a2a;
+      color: #555555;
+
+      &:hover {
+        color: #555;
+        box-shadow: 0 0 6px 1px rgb(95 91 205);
+      }
+    }
+  }
+}

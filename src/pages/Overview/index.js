@@ -4,7 +4,6 @@ import { ethers } from 'ethers';
 
 // styles
 import './index.scss';
-import { useNavigate } from 'react-router-dom';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -18,7 +17,9 @@ import {
 import { Line } from 'react-chartjs-2';
 
 import ImgArchitecture from 'assets/architecture.png';
-import ImgDRLModel from 'assets/deep-reinforcement-learning-model.png';
+import ImgDRLModel from 'assets/deep-reinforcement-learning-model1.png';
+import ImgDRLModelFormula from 'assets/deep-reinforcement-learning-model.png';
+import ImgRewardCalcFormula from 'assets/reward-calc-formula.png';
 
 import TokenABI from 'constants/ABI/Token.json';
 
@@ -121,8 +122,8 @@ const CashAniSVG = () => (
 );
 
 const Overview = () => {
+  const etherscanURL = 'https://goerli.etherscan.io/';
   const pageSize = 3;
-  const navigate = useNavigate();
   const [lossData, setLossData] = useState([]);
   const [rewardData, setRewardData] = useState([]);
   const [orderData, setOrderData] = useState();
@@ -130,6 +131,7 @@ const Overview = () => {
   const [backOrderData, setBackOrderData] = useState();
   const [balanceData, setBalanceData] = useState();
   const [gmType, setGMType] = useState(filterGM[0]);
+  const [metricType, setMetricType] = useState(filterDRLMetrics[0]);
   const [graph, setGraph] = useState();
   const [ledger, setLedger] = useState([]);
   const [aniNumber, setAniNumber] = useState(null);
@@ -160,20 +162,10 @@ const Overview = () => {
     const timeInterval = setInterval(() => updateGraph(), 5000);
     const ledgerInterval = setInterval(() => updateLedger(), 10000);
 
-    setTimeout(() => setAniNumber(1), 2000);
-    setTimeout(() => setAniNumber(2), 4000);
-    setTimeout(() => setAniNumber(3), 6000);
-    setTimeout(() => setAniNumber(4), 8000);
-    setTimeout(() => setAniNumber(5), 10000);
-    setTimeout(() => setAniNumber(6), 12000);
-    setTimeout(() => setAniNumber(7), 14000);
-    setTimeout(() => setAniNumber(8), 16000);
-    setTimeout(() => setAniNumber(9), 18000);
-
     beerContract.on('Transfer', async (fromAddress, toAddress, amount) => {
       console.log(fromAddress, toAddress, amount);
 
-      amount = ethers.utils.formatEther(String(amount));
+      amount = Number(ethers.utils.formatEther(String(amount))).toFixed(2);
       let startIdx = agents.findIndex(
         (it) =>
           String(it.address).toLowerCase() ===
@@ -204,7 +196,7 @@ const Overview = () => {
     cashContract.on('Transfer', async (fromAddress, toAddress, amount) => {
       console.log(fromAddress, toAddress, amount);
 
-      amount = ethers.utils.formatEther(String(amount));
+      amount = Number(ethers.utils.formatEther(String(amount))).toFixed(2);
       let startIdx = agents.findIndex(
         (it) =>
           String(it.address).toLowerCase() ===
@@ -304,26 +296,20 @@ const Overview = () => {
 
   const updateGraph = async () => {
     const reward = (
-      await axios.get('https://050d-125-168-114-204.au.ngrok.io//model/reward')
+      await axios.get('https://deepbrew.au.ngrok.io/model/reward')
     ).data;
-    const loss = (
-      await axios.get('https://050d-125-168-114-204.au.ngrok.io//model/loss')
-    ).data;
-    const orders = (
-      await axios.get('https://050d-125-168-114-204.au.ngrok.io//game/orders')
-    ).data;
+    const loss = (await axios.get('https://deepbrew.au.ngrok.io/model/loss'))
+      .data;
+    const orders = (await axios.get('https://deepbrew.au.ngrok.io/game/orders'))
+      .data;
     const inventory = (
-      await axios.get(
-        'https://050d-125-168-114-204.au.ngrok.io//game/inventories',
-      )
+      await axios.get('https://deepbrew.au.ngrok.io/game/inventories')
     ).data;
     const backOrder = (
-      await axios.get(
-        'https://050d-125-168-114-204.au.ngrok.io//game/backorders',
-      )
+      await axios.get('https://deepbrew.au.ngrok.io/game/backorders')
     ).data;
     const balance = (
-      await axios.get('https://050d-125-168-114-204.au.ngrok.io//game/balances')
+      await axios.get('https://deepbrew.au.ngrok.io/game/balances')
     ).data;
     setLossData(loss);
     setRewardData(reward);
@@ -331,26 +317,6 @@ const Overview = () => {
     setInventoryData(inventory);
     setBackOrderData(backOrder);
     setBalanceData(balance);
-  };
-
-  const calcLeftSpace = (num) => {
-    if (num === 0) return '3%';
-    else if (num === 1) return '26%';
-    else if (num === 2) return '47%';
-    else if (num === 3) return '68%';
-    else if (num === 4) return '90%';
-
-    return 'inital';
-  };
-
-  const calcRightSpace = (num) => {
-    if (num === 5) return '3%';
-    else if (num === 6) return '26%';
-    else if (num === 7) return '47%';
-    else if (num === 8) return '68%';
-    else if (num === 9) return '90%';
-
-    return 'inital';
   };
 
   const updateChart = () => {
@@ -379,6 +345,20 @@ const Overview = () => {
             backgroundColor: 'rgb(255, 255, 100)',
             borderColor: 'rgb(255, 255, 150)',
           },
+          {
+            id: 4,
+            label: 'Retailer Orders',
+            data: orderData['Retailer Orders'],
+            backgroundColor: 'rgb(0, 255, 100)',
+            borderColor: 'rgb(0, 255, 150)',
+          },
+          {
+            id: 5,
+            label: 'Market Demand',
+            data: orderData['Market Demand'],
+            backgroundColor: 'rgb(0, 0, 0)',
+            borderColor: 'rgb(0, 0, 0)',
+          },
         ],
       });
     } else if (gmType === filterGM[1] && backOrderData) {
@@ -405,6 +385,13 @@ const Overview = () => {
             data: backOrderData['Wholesaler Backorder'],
             backgroundColor: 'rgb(255, 255, 100)',
             borderColor: 'rgb(255, 255, 150)',
+          },
+          {
+            id: 4,
+            label: 'Retailer Backorder',
+            data: backOrderData['Retailer Backorder'],
+            backgroundColor: 'rgb(0, 255, 100)',
+            borderColor: 'rgb(0, 255, 150)',
           },
         ],
       });
@@ -433,6 +420,13 @@ const Overview = () => {
             backgroundColor: 'rgb(255, 255, 100)',
             borderColor: 'rgb(255, 255, 150)',
           },
+          {
+            id: 4,
+            label: 'Retailer Inventory',
+            data: inventoryData['Retailer Inventory'],
+            backgroundColor: 'rgb(0, 255, 100)',
+            borderColor: 'rgb(0, 255, 150)',
+          },
         ],
       });
     } else if (gmType === filterGM[3] && balanceData) {
@@ -460,16 +454,54 @@ const Overview = () => {
             backgroundColor: 'rgb(255, 255, 100)',
             borderColor: 'rgb(255, 255, 150)',
           },
+          {
+            id: 4,
+            label: 'Retailer Balance',
+            data: balanceData['Retailer Balance'],
+            backgroundColor: 'rgb(0, 255, 100)',
+            borderColor: 'rgb(0, 255, 150)',
+          },
         ],
       });
     }
   };
 
+  const formatLedgerTime = (time) => {
+    let diff = Math.floor((new Date().getTime() - time) / 1000.0);
+
+    if (diff < 60) {
+      return `${diff} ${diff === 1 ? 'sec' : 'secs'} ago`;
+    }
+
+    if (diff < 3600) {
+      diff = Math.ceil(diff / 60);
+      return `${diff} ${diff === 1 ? 'min' : 'mins'} ago`;
+    }
+
+    if (diff < 3600 * 24) {
+      let hours = Math.floor(diff / 3600);
+      let mins = Math.floor((diff / 60) % 60);
+
+      return `${hours} ${hours === 1 ? 'hr' : 'hrs'} ${mins} ${
+        mins === 1 ? 'min' : 'mins'
+      } ago`;
+    }
+
+    if (diff >= 3600 * 24) {
+      let days = Math.floor(diff / 3600 / 24);
+      let hours = Math.floor((diff / 3600) % 24);
+
+      return `${days} ${days === 1 ? 'day' : 'days'} ${hours} ${
+        hours === 1 ? 'hr' : 'hrs'
+      }  ago`;
+    }
+  };
+
   return (
     <div className="main-content overview">
-      <h1>Ethereum BeerGame v1</h1>
+      <h1>DeepBrew: Deep Q-learning for an On-chain Beer Game</h1>
       <h2>
-        Connecting off-chain computation, deep learning & data to Ethereum.
+        Connecting off-chain deep learning to on-chain Ethereum execution.
       </h2>
       <ul className="overview__links">
         <li>
@@ -479,7 +511,11 @@ const Overview = () => {
           />
           <span>Methodology</span>
         </li>
-        <li>
+        <li
+          onClick={() =>
+            window.open('https://github.com/Deeplink-Network/DeepBrew')
+          }
+        >
           <img
             src="https://static.wixstatic.com/media/7b17b3_23f793aa297643d49ff15d6be7ec7add~mv2.png/v1/crop/x_698,y_0,w_2374,h_1463/fill/w_34,h_21,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/GitHub-logo.png"
             alt=""
@@ -494,41 +530,33 @@ const Overview = () => {
           <span>Off-chain environment</span>
         </li>
       </ul>
-      <p style={{ marginBottom: '2rem' }}>
-        Flight aggregators like Expedia and Google Flights made it easier for us
-        to find the best flight rate and fastest route instead of having to
-        search each airline website one by one. Eta X acts like a search engine
-        for DEX and DeFi, providing a single access point (Eta X APIs), allowing
-        anyone to query the most efficient trade routes, discover better prices,
-        match trade pairs and guesstimate slippage and price impact without
-        attaching to a token or liquid pool.
+      <p style={{ marginBottom: 0, marginTop: '5rem' }}>
+        DeepBrew is a research project aimed at progressing the synthesis of
+        machine learning and blockchain technologies. In particular DeepBrew
+        involves the augmentation of Ethereum smart contracts with deep
+        reinforcement learning agency to enable intelligence and dynamism beyond
+        the scope of traditional contracts while still maintaining the
+        decentralization and security aspects of the EVM. <br />
+        <br />
+        Games provide the perfect environment for developing new reinforcement
+        learning techniques. The Beer Game, a famous macroeconomics problem
+        devised at MIT was chosen as an appropriate environment for the
+        demonstration of off-to-on-chain machine learning, as it is simple to
+        understand yet difficult to master, and can be perfectly represented as
+        a system of transactions. This page shows an AI being trained to play
+        the game in real-time on the Goerli Ethereum testnet.
       </p>
-      <h3>How does it work</h3>
-      <ul className="overview__live-tx" style={{ marginBottom: '6rem' }}>
-        <li>
-          Introduce efficient execution capabilities inspired by traditional
-          finance order-matching systems
-        </li>
-        <li>
-          Modern data aggregation architecture and ETL processes (L3 Atom &
-          SuplerCluster integration).
-        </li>
-        <li>
-          Maintain an off-chain machine learning environment to detect
-          frontrunning and failed transactions and simulate real-time price
-          discovery, volatility, liquidity and price impact to improve the Eta X
-          core functions.
-        </li>
-      </ul>
       <h3>Live Performance</h3>
-      <p style={{ marginBottom: '4rem' }}>
-        I'm a paragraph. Click here to add your own text and edit me. It's easy.
+      <p style={{ marginBottom: '3rem' }}>
+        Watch the game unfold on the Goerli Ethereum testnet in real-time, as
+        agents swap BEER for CASH tokens in accordance with instructions from
+        the deep reinforcement learning environment and model keeper script.
       </p>
       <div className="overview__game-model">
         {/* <img src={ImgGameModel} alt="" /> */}
         <div className="overview__game-model__wrapper">
           <div className="overview__game-model__ani">
-            {aniNumber && aniText && (
+            {aniNumber && aniText ? (
               <span
                 className={
                   aniNumber === 0 ? 'overview__game-model__animation' : ''
@@ -536,10 +564,12 @@ const Overview = () => {
               >
                 {aniNumber === 0 ? `+${aniText}` : ''}
               </span>
+            ) : (
+              <span />
             )}
             {BeerAniSVG()}
             {CashAniSVG()}
-            {aniNumber && aniText && (
+            {aniNumber && aniText ? (
               <span
                 className={
                   aniNumber === 9 ? 'overview__game-model__animation' : ''
@@ -547,6 +577,8 @@ const Overview = () => {
               >
                 {aniNumber === 9 ? `-${aniText}` : ''}
               </span>
+            ) : (
+              <span />
             )}
           </div>
           {agents.map((it, idx) => {
@@ -571,7 +603,7 @@ const Overview = () => {
                   </div>
 
                   <div className="overview__game-model__ani">
-                    {aniNumber && aniText && (
+                    {aniNumber && aniText ? (
                       <span
                         className={
                           aniNumber === idx + 1
@@ -581,10 +613,12 @@ const Overview = () => {
                       >
                         {aniNumber === idx + 1 ? `+${aniText}` : ''}
                       </span>
+                    ) : (
+                      <span />
                     )}
                     {BeerAniSVG()}
                     {CashAniSVG()}
-                    {aniNumber && aniText && (
+                    {aniNumber && aniText ? (
                       <span
                         className={
                           aniNumber === 9 - idx - 1
@@ -594,6 +628,8 @@ const Overview = () => {
                       >
                         {aniNumber === 9 - idx - 1 ? `-${aniText}` : ''}
                       </span>
+                    ) : (
+                      <span />
                     )}
                   </div>
                 </>
@@ -603,21 +639,16 @@ const Overview = () => {
         </div>
       </div>
       <h3>Game Metrics</h3>
-      <ul className="overview__live-tx">
+      <ul className="overview__live-tx" style={{ marginBottom: 16 }}>
         <li>
-          Introduce efficient execution capabilities inspired by traditional
-          finance order-matching systems
+          Orders: The number of BEER tokens ordered by each agent in that round
         </li>
         <li>
-          Modern data aggregation architecture and ETL processes (L3 Atom &
-          SuplerCluster integration).
+          Backorders: When agents are unable to meet their client's demand,
+          those unfilled orders are appended to their backorder
         </li>
-        <li>
-          Maintain an off-chain machine learning environment to detect
-          frontrunning and failed transactions and simulate real-time price
-          discovery, volatility, liquidity and price impact to improve the Eta X
-          core functions.
-        </li>
+        <li>Inventories: The number of BEER tokens held by each agent</li>
+        <li>Balances: The CASH balance of each agent</li>
       </ul>
       <div className="overview__filter">
         {filterGM.map((it) => {
@@ -633,70 +664,103 @@ const Overview = () => {
           );
         })}
       </div>
-      <Line
-        datasetIdKey="id"
-        data={{
-          labels: graph ? graph.labels : [],
-          datasets: graph ? graph.datasets : [],
-        }}
-      />
+      <div className="overview__line">
+        <div className="left-label">{`${gmType} (${
+          gmType === 'Balances' ? 'CASH' : 'BEER'
+        })`}</div>
+        <div className="bottom-label">Rounds</div>
+        <Line
+          datasetIdKey="id"
+          data={{
+            labels: graph ? graph.labels : [],
+            datasets: graph ? graph.datasets : [],
+          }}
+          options={{
+            plugins: {
+              tooltip: {
+                mode: 'index',
+                intersect: false,
+              },
+            },
+          }}
+        />
+      </div>
       <h3>Deep Reinforcement Learning Metrics</h3>
       <ul className="overview__live-tx">
         <li>
-          Introduce efficient execution capabilities inspired by traditional
-          finance order-matching systems
+          Loss: A measure of the performance of the agent's outputs using the
+          Huber loss method (lower loss values are good)
         </li>
         <li>
-          Modern data aggregation architecture and ETL processes (L3 Atom &
-          SuplerCluster integration).
-        </li>
-        <li>
-          Maintain an off-chain machine learning environment to detect
-          frontrunning and failed transactions and simulate real-time price
-          discovery, volatility, liquidity and price impact to improve the Eta X
-          core functions.
+          Reward: The cumulative reward of the agent after each game given by
+          the following formula (higher reward values are good) <br />
+          <img
+            src={ImgRewardCalcFormula}
+            alt=""
+            style={{
+              height: '3.5rem',
+              width: 'auto',
+              marginTop: 8,
+              transform: 'translateX(90%)',
+            }}
+          />
         </li>
       </ul>
-      <Line
-        datasetIdKey="id"
-        data={{
-          labels: lossData.Episode,
-          datasets: [
-            {
-              id: 1,
-              label: 'Loss',
-              data: lossData.Loss,
-              backgroundColor: 'rgba(100, 100, 255)',
-              borderColor: 'rgba(150, 150, 255)',
+      <div className="overview__filter">
+        {filterDRLMetrics.map((it) => {
+          return (
+            <div
+              className={`overview__filter-item ${
+                it === metricType ? 'active' : ''
+              }`}
+              onClick={() => setMetricType(it)}
+            >
+              <span>{it}</span>
+            </div>
+          );
+        })}
+      </div>
+      <div className="overview__line">
+        <div className="left-label" style={{ left: 0 }}>
+          {metricType}
+        </div>
+        <div className="bottom-label">Iteration</div>
+        <Line
+          datasetIdKey="id"
+          data={{
+            labels: lossData.Episode,
+            datasets: [
+              metricType === filterDRLMetrics[0]
+                ? {
+                    id: 1,
+                    label: 'Loss',
+                    data: lossData.Loss,
+                    backgroundColor: 'rgba(100, 100, 255)',
+                    borderColor: 'rgba(150, 150, 255)',
+                  }
+                : {
+                    id: 2,
+                    label: 'Reward',
+                    data: rewardData.Reward,
+                    backgroundColor: 'rgba(255, 100, 100)',
+                    borderColor: 'rgba(255, 150, 100)',
+                  },
+            ],
+          }}
+          options={{
+            plugins: {
+              tooltip: {
+                mode: 'index',
+                intersect: false,
+              },
             },
-            {
-              id: 2,
-              label: 'Reward',
-              data: rewardData.Reward,
-              backgroundColor: 'rgba(255, 100, 100)',
-              borderColor: 'rgba(255, 150, 100)',
-            },
-          ],
-        }}
-      />
+          }}
+        />
+      </div>
       <h3>Live transactions</h3>
-      <ul className="overview__live-tx">
-        <li>
-          Introduce efficient execution capabilities inspired by traditional
-          finance order-matching systems{' '}
-        </li>
-        <li>
-          Modern data aggregation architecture and ETL processes (L3 Atom &
-          SuplerCluster integration).{' '}
-        </li>
-        <li>
-          {' '}
-          Maintain an off-chain machine learning environment to detect
-          frontrunning and failed transactions and simulate real-time price
-          discovery, volatility, liquidity and price impact to improve the Eta X
-          core functions.
-        </li>
-      </ul>
+      <p>
+        Observe the game's transactions pulled directly from the Goerli ledger
+      </p>
       <div className="ledger__wrapper">
         {ledger &&
           ledger
@@ -710,29 +774,44 @@ const Overview = () => {
                   >
                     <div className="d-flex flex-column">
                       <p>TX HASH</p>
-                      <p>{it.tx_hash}</p>
+                      <a
+                        href={`${etherscanURL}/tx/${it.tx_hash}`}
+                        target="_blank"
+                      >
+                        {it.tx_hash}
+                      </a>
                     </div>
                     <div className="d-flex flex-column">
-                      <span>{new Date(it.block_signed_at).toDateString()}</span>
+                      <span>
+                        {formatLedgerTime(
+                          new Date(it.block_signed_at).getTime(),
+                        )}
+                      </span>
                     </div>
                   </div>
 
                   <div className="d-flex justify-content-between">
                     <div className="d-flex flex-column">
                       <p>FROM ADDRESS</p>
-                      <p>
+                      <a
+                        href={`${etherscanURL}/address/${it.from_address}`}
+                        target="_blank"
+                      >
                         {it.from_address} <br />
                         <span>{formatAddress(it.from_address)}</span>
-                      </p>
+                      </a>
                     </div>
 
                     <div className="d-flex flex-column">
                       <p>TO CONTRACT ADDRESS</p>
 
-                      <p>
+                      <a
+                        href={`${etherscanURL}/address/${it.to_address}`}
+                        target="_blank"
+                      >
                         {it.to_address} <br />
                         <span>{formatAddress(it.to_address)}</span>
-                      </p>
+                      </a>
                     </div>
 
                     <div className="d-flex flex-column">
@@ -801,63 +880,124 @@ const Overview = () => {
       </div>
       <h3>The methodology</h3>
       <p>
-        ​Flight aggregators like Expedia and Google Flights made it easier for
-        us to find the best flight rate and fastest route instead of having to
-        search each airline website one by one. Eta X acts like a search engine
-        for DEX and DeFi, providing a single access point (Eta X APIs), allowing
-        anyone to query the most efficient trade routes, discover better prices,
-        match trade pairs and guesstimate slippage and price impact without
-        attaching to a token or liquid pool.
+        In addition to this live demonstration, DeepBrew also serves as a
+        foundational methodology for the development of on-chain machine
+        learning agents.
       </p>
+      <ul className="overview__live-tx">
+        <li>
+          The Beer Game was first recreated on a local Ganache Ethereum testnet,
+          in which agents were represented by wallets and were given rule-based
+          algorithms known as the 'base-stock policy'
+        </li>
+        <li>
+          The game was then converted to OpenAI's Gym framework for
+          reinforcement learning
+        </li>
+        <li>
+          A soft actor-critic deep Q-learning model was then trained to play the
+          game as the Distributor agent
+        </li>
+        <li>
+          The game was then migrated onto the Goerli testnet, and the wallets
+          representing agents were replaced with smart contracts, demonstrating
+          the system's ability to control smart contract execution via deep
+          learning outputs on a public blockchain via Web3 contract calls
+        </li>
+      </ul>
       <p>
-        Flight aggregators like Expedia and Google Flights made it easier for us
-        to find the best flight rate and fastest route instead of having to
-        search each airline website one by one. Eta X acts like a search engine
-        for DEX and DeFi, providing a single access point (Eta X APIs), allowing
-        anyone to query the most efficient trade routes, discover better prices,
-        match trade pairs and guesstimate slippage and price impact without
-        attaching to a token or liquid pool.
+        <br />
+        The following architecture outlines the framework for connecting
+        off-chain machine learning to on-chain smart contract execution
       </p>
       <img className="img__architecture" src={ImgArchitecture} alt="" />
       <h3>Deep Reinforcement Learning Model (Soft Actor-critic)</h3>
       <p>
-        ​Flight aggregators like Expedia and Google Flights made it easier for
-        us to find the best flight rate and fastest route instead of having to
-        search each airline website one by one. Eta X acts like a search engine
-        for DEX and DeFi, providing a single access point (Eta X APIs), allowing
-        anyone to query the most efficient trade routes, discover better prices,
-        match trade pairs and guesstimate slippage and price impact without
-        attaching to a token or liquid pool.
+        The selected model for optimizing The Beer Game is a relatively
+        lightweight soft actor critic deep Q-learning model, a type of
+        reinforcement learning model which builds on the traditional Q-learning
+        actor-critic framework of policy adjustment via Q-functions by making
+        two estimates for Q-values in an effeort to avoid overvaluing rewards.
+        The model is separated into an actor and critic, the actor makes actions
+        in the space, and the critic evaluates the effectiveness of those
+        actions. This is done via clipped double Q-learning which takes the
+        minimum of two Q-value estimates using the following function:
       </p>
-      <p>
-        Flight aggregators like Expedia and Google Flights made it easier for us
-        to find the best flight rate and fastest route instead of having to
-        search each airline website one by one. Eta X acts like a search engine
-        for DEX and DeFi, providing a single access point (Eta X APIs), allowing
-        anyone to query the most efficient trade routes, discover better prices,
-        match trade pairs and guesstimate slippage and price impact without
-        attaching to a token or liquid pool.
-      </p>
+      <img className="img__drl-model1" src={ImgDRLModelFormula} alt="" />
       <img className="img__drl-model" src={ImgDRLModel} alt="" />
       <h3>Applications and future work</h3>
       <p>
-        ​Flight aggregators like Expedia and Google Flights made it easier for
-        us to find the best flight rate and fastest route instead of having to
-        search each airline website one by one. Eta X acts like a search engine
-        for DEX and DeFi, providing a single access point (Eta X APIs), allowing
-        anyone to query the most efficient trade routes, discover better prices,
-        match trade pairs and guesstimate slippage and price impact without
-        attaching to a token or liquid pool.
+        The applications of this technique are broad in scope, and can be
+        applied to any problem in which dynamism and intelligence would benefit
+        a Web3-based use-case. Some examples of these applications include but
+        are not limited to:
       </p>{' '}
+      <ul className="overview__live-tx">
+        <li>DeFi Capital Efficiency</li>
+        <li>On-chain Algorithms</li>
+        <li>On-chain Credit Scores</li>
+        <li>Artificially Intelligent Smart Order Routing</li>
+        <li>DEX Aggregation</li>
+      </ul>
+      <h3>On-chain Machine Learning Workflow</h3>
       <p>
-        Flight aggregators like Expedia and Google Flights made it easier for us
-        to find the best flight rate and fastest route instead of having to
-        search each airline website one by one. Eta X acts like a search engine
-        for DEX and DeFi, providing a single access point (Eta X APIs), allowing
-        anyone to query the most efficient trade routes, discover better prices,
-        match trade pairs and guesstimate slippage and price impact without
-        attaching to a token or liquid pool.{' '}
+        This project was undertaken largely in order to develop a methodology
+        for the implementation of more practical off-to-on-chain reinforcement
+        learning systems. This workflow can be broken down into following steps:
+      </p>{' '}
+      <p className="mb-0">
+        1. Recreate your Web3 problem as accurately as possible in a local
+        testnet such as Ganache
       </p>
+      <ul className="overview__workflow">
+        <li>
+          Local testnets are recommended for this stage as they run dramatically
+          faster than public testnets, and have admin functionality
+        </li>
+        <li>
+          This may be less daunting of a task than it sounds, as the code on
+          which Web3 ecosystem reside is publicly available
+        </li>
+      </ul>
+      <p className="mb-0 mt-4">
+        {' '}
+        2. Convert this problem into a reinforcement learning environment
+      </p>
+      <ul className="overview__workflow">
+        <li>OpenAI's Gym class is a good starting point </li>
+      </ul>
+      <p className="mb-0 mt-4">
+        3. Train a reinforcement learning model to optimize your problem
+      </p>
+      <p className="mb-0 mt-4">
+        4. Deploy your system onto a public testnet such as Goerli for
+        bugtesting purposes
+      </p>
+      <ul className="overview__workflow">
+        <li>
+          Sending transactions on a public blockchain is more involved than on a
+          local one
+        </li>
+        <li>
+          This will also give you a sense for the real-world execution speeds
+          you can expect
+        </li>
+      </ul>
+      <p className="mb-0 mt-4">
+        5. Once this model performs satisfactorily, leverage transfer learning
+        techniques to deploy your model onto the mainnet
+      </p>
+      <ul className="overview__workflow">
+        <li>
+          Transfer learning allows the model to begin training from where the
+          prototypes left off, rather than deploying a randomly acting agent
+          onto the mainnet with real funds
+        </li>
+        <li>
+          It is strongly advised that safety measures such as spending limits
+          are put in place to keep the model from doing anything extreme
+        </li>
+      </ul>
     </div>
   );
 };

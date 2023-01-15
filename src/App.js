@@ -2,6 +2,7 @@ import { HashRouter, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
 import Overview from './pages/Overview';
+import Header from './pages/Header';
 
 import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
@@ -9,6 +10,7 @@ import './App.css';
 function App() {
   return (
     <HashRouter>
+      <Header />
       <Routes>
         <Route exact path="/" element={<Overview />} />
       </Routes>

@@ -3,44 +3,80 @@
     margin-top: 2rem;
     margin-bottom: 0.5rem;
     font-size: 36px;
-    font-weight: 500;
+    font-weight: bold;
     color: rgb(42, 42, 42);
+    font-family: 'Poppins';
   }
 
   h2 {
     font-size: 20px;
-    font-weight: 400;
+    font-weight: 200;
+    font-family: 'Poppins';
+    color: rgb(42, 42, 42);
   }
 
   h3 {
     font-size: 16px;
     font-weight: bold;
+    margin-top: 5rem;
+    font-family: 'Poppins';
   }
 
   p {
-    font-size: 12px;
+    font-size: 14px;
     color: rgb(42, 42, 42);
+    font-family: 'Inter';
+  }
+
+  a {
+    font-size: 14px;
+    color: rgb(42, 42, 42);
+    font-family: 'Inter';
+    text-decoration: none;
+  }
+
+  &__line {
+    position: relative;
+    width: 100%;
+    z-index: -1;
+
+    .left-label {
+      position: absolute;
+      transform: rotate(-90deg);
+      font-size: 20px;
+      top: 50%;
+      left: -3rem;
+    }
+
+    .bottom-label {
+      position: absolute;
+      font-size: 20px;
+      bottom: -2rem;
+      left: 47%;
+      transform: translateX(-50%);
+    }
   }
 
   &__links {
     padding-left: 0;
     display: flex;
     margin-top: 1rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1rem;
 
     li {
-      font-size: 12px;
-      margin-right: 4rem;
+      font-size: 14px;
+      margin-right: 1.5rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: flex-start;
+      font-family: 'Inter';
     }
 
     img {
-      margin-right: 1rem;
+      margin-right: 0.5rem;
       width: auto;
-      height: 26px;
+      height: 21px;
       object-fit: contain;
     }
 
@@ -52,8 +88,21 @@
   &__live-tx {
     li {
       list-style-type: disc;
-      font-size: 12px;
+      font-size: 14px;
       color: rgb(42, 42, 42);
+      font-family: 'Inter';
+    }
+
+    margin-bottom: 0;
+  }
+
+  &__workflow {
+    margin-bottom: 0;
+    li {
+      list-style-type: circle;
+      font-size: 14px;
+      color: rgb(42, 42, 42);
+      font-family: 'Inter';
     }
   }
 
@@ -62,7 +111,6 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    margin-bottom: 3rem;
 
     > div {
       background: rgba(0, 0, 255, 0.05);
@@ -84,23 +132,27 @@
     height: auto !important;
     margin-left: 4rem;
     margin-top: 3rem;
-    margin-bottom: 6rem;
   }
 
   .img {
     &__architecture {
-      margin: 4rem 0 8rem 0;
       width: 65%;
       margin-left: auto;
       margin-right: auto;
     }
 
     &__drl-model {
-      margin: 3rem 0;
       margin-left: auto;
       margin-right: auto;
       width: 65%;
       min-width: 300px;
+    }
+
+    &__drl-model1 {
+      margin-left: auto;
+      margin-right: auto;
+      width: 40%;
+      min-width: 150px;
     }
 
     &__drl-metrics {
@@ -121,8 +173,10 @@
 
       p,
       span {
-        font-size: 12px;
+        font-size: 14px;
         margin-bottom: 0;
+      }
+      p {
         text-transform: capitalize;
       }
 
@@ -133,7 +187,7 @@
         border-radius: 4px;
         border: none;
         outline: none;
-        font-size: 12px;
+        font-size: 14px;
         padding: 4px;
 
         &:hover {
@@ -151,9 +205,7 @@
 
     &__wrapper {
       width: 100%;
-      height: 500px;
       overflow: auto;
-      margin-top: 3rem;
       padding-left: 3rem;
     }
   }
@@ -172,7 +224,7 @@
       align-items: center;
       border: 1px solid #ddd;
       margin-right: 3px;
-      font-size: 12px;
+      font-size: 14px;
 
       &.active {
         background: rgba(100, 100, 255);
@@ -186,14 +238,13 @@
     &__animation {
       animation: 0.5s infinite alternate fadeIn;
       animation-iteration-count: 10;
+      white-space: nowrap;
     }
 
     &__wrapper {
       display: flex;
       align-items: cener;
       justify-content: space-between;
-
-      margin-bottom: 8rem;
     }
 
     &__item {
@@ -220,7 +271,7 @@
       }
       &-amount {
         text-align: center;
-        margin-top: 1.5rem;
+        margin-top: 0.5rem;
 
         .beer {
           margin-bottom: 0;
@@ -240,6 +291,7 @@
       justify-content: center;
       transform: translateY(-2rem);
       margin: 0 1rem;
+      font-size: 16px;
 
       svg {
         width: 58px;
